@@ -4,7 +4,10 @@ from metagpt.config2 import config
 from metagpt.llm import LLM
 from metagpt.utils.text import generate_prompt_chunk
 CONSTRAINTS = """
-1. Ensure variable typing is made clear with type hints.
+1. Choose descriptive and meaningful names for variables, functions, and classes. Avoid single letter variables except for in loops.
+2. Ensure variable typing is made clear with type hints.
+3. Properly document your code with docstrings and comments if its functionality is not already obvious.
+4. Avoid excessively using global variables in your code.
 """
 
 INFER_PROMPT = """
@@ -25,10 +28,10 @@ Constraints:
 
 COMMENT_PROMPT = """
 Given a summary of the overall purpose of a python file, a snippet from that python file, and a list of programming rules defined by the user:
-- Ensure that the code in the snippet follows the provided rules. 
-- Respond only with "LGTM" if the program follows the given rules. 
+- Ensure that the code in the snippet follows the provided rules, but be lenient. 
+- Respond with "LGTM" if the program generally seems to follow the given rules. 
 - Ignore all other issues that do not pertain to the provided rules.
-- If a part of the code directly violates one of given rules, generate ONLY short, concise, bullet-point comments structured as: - <rule number> : <description of violation>.
+- If a part of the code directly violates one of given rules, generate ONLY short, concise, bullet-point comments structured as: - #<rule number> : <description of violation>.
 
 ##### RULES:
 {constraints}
