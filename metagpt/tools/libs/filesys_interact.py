@@ -5,8 +5,7 @@ from metagpt.llm import LLM
 from metagpt.utils.text import generate_prompt_chunk
 CONSTRAINTS = """
 1. Ensure variable typing is made clear with type hints.
-2. Properly document your code with docstrings and comments if its functionality is not already obvious.
-3. Never use global variables in this program.
+2. Ensure that variable names are not single letters except in loops.
 """
 
 INFER_PROMPT = """
@@ -28,7 +27,7 @@ Constraints:
 COMMENT_PROMPT = """
 Given a summary of the overall purpose of a python file, a snippet from that python file, and a list of programming rules defined by the user:
 - Ensure that the code in the snippet follows the provided rules. 
-Respond with "LGTM" if the program follows the given rules. Do NOT write comments about anything that does not directly violate the given rules and ignore all unrelated issues. If and only if a part of the code directly violates one of given rules, generate ONLY a few short, concise, bullet-point comments about them.
+Respond with "LGTM" if the program follows the given rules. Do NOT write comments about anything that does not directly violate the given rules and ignore all unrelated issues. If and only if a part of the code directly violates one of given rules, generate ONLY a few short, concise, bullet-point comments about the violations.
 
 ##### PURPOSE:
 {purpose}
@@ -98,7 +97,7 @@ async def GenerateComments(path: str, purpose: str):
         return "Given path does not exist!"
     if os.path.isdir(path):
         return "Given path refers to a directory, not a file!"
-    sys_text = "You are an AI that is tasked with providing comments about how to improve a program snippet."
+    sys_text = "You are an AI that is tasked with providing comments about whether a program snippet generally adheres to some given rules."
     with open(path) as file:
         contents = file.read()
     prompt_template = COMMENT_PROMPT.format(purpose=purpose, constraints=CONSTRAINTS, content="{}")
