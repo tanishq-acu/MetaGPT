@@ -4,8 +4,8 @@ from metagpt.config2 import config
 from metagpt.llm import LLM
 from metagpt.utils.text import generate_prompt_chunk
 CONSTRAINTS = """
-1. Ensure variable typing is made clear with type hints.
-2. Ensure that variable names are not single letters except in loops.
+1. exists: variable typing is made clear with type hints.
+2. exists: variable names are not single letters except in loops.
 """
 
 INFER_PROMPT = """
@@ -29,11 +29,12 @@ Given a summary of the overall purpose of a python file, a snippet from that pyt
 - Ensure that the code in the snippet follows the provided rules. 
 Respond with "LGTM" if the program follows the given rules. Do NOT write comments about anything that does not directly violate the given rules and ignore all unrelated issues. If and only if a part of the code directly violates one of given rules, generate ONLY a few short, concise, bullet-point comments about the violations.
 
-##### PURPOSE:
-{purpose}
-#####
 ##### RULES:
 {constraints}
+#####
+
+##### PURPOSE:
+{purpose}
 #####
 ##### SNIPPET:
 {content}
