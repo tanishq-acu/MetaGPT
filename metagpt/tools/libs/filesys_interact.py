@@ -26,8 +26,8 @@ Constraints:
 
 COMMENT_PROMPT = """
 Given a summary of the overall purpose of a python file, a snippet from that python file, and a list of programming rules defined by the user:
-- Ensure that the code in the snippet follows the provided rules. 
-Respond with "LGTM" if the program follows the given rules. Do NOT write comments about anything that does not directly violate the given rules and ignore all unrelated issues. If and only if a part of the code directly violates one of given rules, generate ONLY a few short, concise, bullet-point comments about the violations.
+- Ensure that the code in the snippet follows the provided rules. Ignore all other issues that do not pertain to the provided rules.
+Respond with "LGTM" if the program follows the given rules. Do NOT write comments about anything that does not directly violate the given rules. If and only if a part of the code directly violates one of given rules, generate ONLY a few short, concise, bullet-point comments about the violations.
 
 ##### RULES:
 {constraints}
@@ -98,7 +98,7 @@ async def GenerateComments(path: str, purpose: str):
         return "Given path does not exist!"
     if os.path.isdir(path):
         return "Given path refers to a directory, not a file!"
-    sys_text = "You are an AI that is tasked with providing comments about whether a program snippet generally adheres to some given rules."
+    sys_text = "You are an helpful AI agent who follows user instructions perfectly and precisely."
     with open(path) as file:
         contents = file.read()
     prompt_template = COMMENT_PROMPT.format(purpose=purpose, constraints=CONSTRAINTS, content="{}")
