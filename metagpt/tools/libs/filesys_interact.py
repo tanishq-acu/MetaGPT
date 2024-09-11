@@ -4,8 +4,8 @@ from metagpt.config2 import config
 from metagpt.llm import LLM
 from metagpt.utils.text import generate_prompt_chunk
 CONSTRAINTS = """
-1. exists: variable typing is made clear with type hints.
-2. exists: variable names are not single letters except in loops.
+1. Variable typing is made clear with type hints.
+2. Variable names are not single letters except in loops.
 """
 
 INFER_PROMPT = """
@@ -26,10 +26,10 @@ Constraints:
 
 COMMENT_PROMPT = """
 Given a summary of the overall purpose of a python file, a snippet from that python file, and a list of programming rules defined by the user:
-- Ensure that the code in the snippet follows the provided rules. Respond with "LGTM" if the program follows the given rules. 
+- Ensure that the code in the snippet follows the provided rules. Always respond only with "LGTM" if the program follows the given rules. 
 - Ignore all other issues that do not pertain to the provided rules.
-- Do NOT write comments about anything that does not directly violate the given rules. 
-- If and only if a part of the code directly violates one of given rules, generate ONLY a short, concise, bullet-point comment about the violation and which rule it violates.
+- Do NOT write comments about anything that does not directly violate one of given rules. 
+- If and only if a part of the code directly violates one of given rules, generate ONLY a short, concise, bullet-point comment structured as: - <rule number> : <description of violation>.
 
 ##### RULES:
 {constraints}
