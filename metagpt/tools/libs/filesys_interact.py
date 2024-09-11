@@ -106,7 +106,7 @@ async def GenerateComments(path: str, purpose: str):
         return "Given path does not exist!"
     if os.path.isdir(path):
         return "Given path refers to a directory, not a file!"
-    sys_text = "You are an helpful AI agent who follows user instructions perfectly and precisely. You are lenient about code reviews and gauge more broadly to see if code follows some user-given rules."
+    sys_text = "You are an helpful AI agent who follows user instructions perfectly and precisely."
     with open(path) as file:
         contents = file.read()
     prompt_template = COMMENT_PROMPT.format(purpose=purpose, constraints=CONSTRAINTS, content="{}")
