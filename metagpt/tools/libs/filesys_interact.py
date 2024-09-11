@@ -4,7 +4,7 @@ from metagpt.config2 import config
 from metagpt.llm import LLM
 from metagpt.utils.text import generate_prompt_chunk
 CONSTRAINTS = """
-1. Choose descriptive and meaningful names for variables, functions, and classes. Avoid single letter variables except for in loops.
+1. Choose descriptive and meaningful names for variables, functions, and classes unless they are in loops.
 2. Ensure variable typing is made clear with type hints.
 3. Properly document your code with docstrings and comments if its functionality is not already obvious.
 4. Avoid excessively using global variables in your code.
@@ -106,7 +106,7 @@ async def GenerateComments(path: str, purpose: str):
     with open(path) as file:
         contents = file.read()
     prompt_template = COMMENT_PROMPT.format(purpose=purpose, constraints=CONSTRAINTS, content="{}")
-    chunks = generate_prompt_chunk(contents, prompt_template, "gpt-3.5-turbo-0613", system_text=sys_text)
+    chunks = generate_prompt_chunk(text=contents, prompt_template=prompt_template, model_name="gpt-3.5-turbo-0613", system_text=sys_text)
     comments = ""
     for prompt in chunks:
         item = await llm.aask(msg=prompt, system_msgs=[sys_text])
