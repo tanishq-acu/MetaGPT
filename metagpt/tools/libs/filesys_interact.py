@@ -7,8 +7,6 @@ CONSTRAINTS = """
 1. Choose descriptive and meaningful names for variables, functions, and classes. Avoid single letter variables except for in loops.
 2. Ensure variable typing is made clear with proper type hints.
 3. Properly document your code with docstrings and comments if its functionality is not already obvious.
-
-Extra Constraints:
 4. Never use global variables in this program.
 """
 
@@ -31,12 +29,12 @@ Constraints:
 COMMENT_PROMPT = """
 Given a summary of the overall purpose of a python file, a snippet from that python file, and a list of programming rules defined by the user:
 - Ensure that the code in the snippet follows the provided rules. 
-Respond with "LGTM" if the program follows the given rules. If and only if there are issues in the code that violate the rules, generate ONLY a few short, concise, bullet-point comments about them.
-Do NOT write comments about anything that does not directly violate the given rules. 
+Respond with "LGTM" if the program follows the given rules. Do NOT write comments about anything that does not directly violate the given rules and ignore all unrelated issues. If and only if a part of the code directly violates one of given rules, generate ONLY a few short, concise, bullet-point comments about them.
+
 ##### PURPOSE:
 {purpose}
 #####
-##### GENERAL RULES:
+##### RULES:
 {constraints}
 #####
 ##### SNIPPET:
