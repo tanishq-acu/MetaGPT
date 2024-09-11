@@ -30,12 +30,14 @@ COMMENT_PROMPT = """
 Below, you are given a summary of the overall purpose of a python file, a snippet from that python file, and a list of programming rules defined by the user.
 If the code in the snippet seems to generally follow the provided rules (be lenient), your response should simply be: "LGTM".
 
-Otherwise, if a part of the code directly violates one of the given rules, generate ONLY short concise bullet-point comments structured as:
-- #<rule number>: <description of rule violation>
+Otherwise, if a part of the code directly violates one of the given rules, generate ONLY short concise bullet-point comments each structured as:
+- <rule number>: <description of rule violation>
 
 In summary, your response should ONLY be either of:
 1. "LGTM"
-2. - #<rule number>: <description of violation> ...
+2. - <rule number>: <description of violation>
+- <rule number>: <description of violation> 
+...
 
 ##### RULES:
 {constraints}
