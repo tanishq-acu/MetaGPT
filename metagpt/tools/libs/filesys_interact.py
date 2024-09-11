@@ -6,12 +6,10 @@ from metagpt.utils.text import generate_prompt_chunk
 CONSTRAINTS = """
 1. Choose descriptive and meaningful names for variables, functions, and classes. Avoid single letter variables except for in loops.
 2. Ensure variable typing is made clear with proper type hints.
-3. Use try-except blocks for functions that are likely to raise an exception.
-4. Break down large code blocks into reusable functions and modules. This improves readability.
-5. Properly document your code with docstrings and comments if its functionality is not already obvious.
+3. Properly document your code with docstrings and comments if its functionality is not already obvious.
 
 Extra Constraints:
-6. Never use global variables in this program.
+4. Never use global variables in this program.
 """
 
 INFER_PROMPT = """
@@ -33,8 +31,7 @@ Constraints:
 COMMENT_PROMPT = """
 Given a summary of the overall purpose of a python file, a few programming rules defined by the user, and a snippet from that python file:
 - Ensure that the code in the snippet follows the provided rules. 
-- Ensure there are no glaring issues with the program's functionality or logic.
-Respond with "LGTM" if there are no issues in the program with regards to the rules or logic. If and only if there are issues, then generate ONLY a few short, concise, bullet-point comments about them.
+Respond with "LGTM" if the program follows the given rules. If and only if there are issues, then generate ONLY a few short, concise, bullet-point comments about them.
 ##### PURPOSE:
 {purpose}
 #####
