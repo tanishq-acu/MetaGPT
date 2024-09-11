@@ -4,10 +4,9 @@ from metagpt.config2 import config
 from metagpt.llm import LLM
 from metagpt.utils.text import generate_prompt_chunk
 CONSTRAINTS = """
-1. Choose descriptive and meaningful names for variables, functions, and classes. Avoid single letter variables except for in loops.
-2. Ensure variable typing is made clear with proper type hints.
-3. Properly document your code with docstrings and comments if its functionality is not already obvious.
-4. Never use global variables in this program.
+1. Ensure variable typing is made clear with type hints.
+2. Properly document your code with docstrings and comments if its functionality is not already obvious.
+3. Never use global variables in this program.
 """
 
 INFER_PROMPT = """
