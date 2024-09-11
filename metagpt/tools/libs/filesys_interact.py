@@ -29,9 +29,10 @@ Constraints:
 """
 
 COMMENT_PROMPT = """
-Given a summary of the overall purpose of a python file, a few programming rules defined by the user, and a snippet from that python file:
+Given a summary of the overall purpose of a python file, a snippet from that python file, and a list of programming rules defined by the user:
 - Ensure that the code in the snippet follows the provided rules. 
-Respond with "LGTM" if the program follows the given rules. If and only if there are issues, then generate ONLY a few short, concise, bullet-point comments about them.
+Respond with "LGTM" if the program follows the given rules. If and only if there are issues in the code that violate the rules, generate ONLY a few short, concise, bullet-point comments about them.
+Do NOT write comments about anything that does not directly violate the given rules. 
 ##### PURPOSE:
 {purpose}
 #####
