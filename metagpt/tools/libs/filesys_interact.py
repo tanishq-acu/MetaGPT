@@ -113,7 +113,12 @@ async def GenerateComments(path: str, purpose: str):
     sys_text = "You are an helpful AI agent who follows user instructions perfectly and precisely."
     with open(path) as file:
         contents = file.read()
-    prompt_template = COMMENT_PROMPT.format(purpose=purpose, constraints=CONSTRAINTS, content="{}")
+    if not os.path.exists(".github/workflows/constraints.txt"):
+        constraints = CONSTRAINTS
+    else:
+        with open(path) as file:
+            constraints = file.read()
+    prompt_template = COMMENT_PROMPT.format(purpose=purpose, constraints=constraints, content="{}")
     chunks = generate_prompt_chunk(text=contents, prompt_template=prompt_template, model_name="gpt-3.5-turbo-0613", system_text=sys_text)
     comments = ""
     for prompt in chunks:
