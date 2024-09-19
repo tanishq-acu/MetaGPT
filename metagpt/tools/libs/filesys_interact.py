@@ -34,11 +34,11 @@ If the code in the snippet seems to generally follow the provided rules (be leni
 Otherwise, if a part of the code directly violates one of the given rules, generate ONLY short concise bullet-point comments each structured as:
 "
 - <description of rule violation>:
-`
+```
 <specific line(s) that violate rule> 
 # suggestion:
 <suggested change>
-`
+```
 "
 
 ##### RULES:
