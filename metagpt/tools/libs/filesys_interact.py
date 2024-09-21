@@ -3,10 +3,13 @@ import os
 from metagpt.config2 import config
 from metagpt.llm import LLM
 from metagpt.utils.text import generate_prompt_chunk
+
+CHUNK_SIZE = 1900
+
 CONSTRAINTS = """
 1. Choose descriptive and meaningful names for variables, functions, and classes unless they are in loops.
-2. Ensure variable typing is made clear with type hints.
-3. Properly document your code with docstrings and comments if its functionality is not already obvious.
+2. Use variable typing and type hints where needed.
+3. Document your code with docstrings and comments if its functionality is not already obvious.
 4. Avoid excessively using global variables in your code.
 """
 
@@ -27,18 +30,17 @@ Constraints:
 """
 
 COMMENT_PROMPT = """
-Below, you are given a summary of the overall purpose of a python file, a snippet from that python file, and a list of programming rules defined by the user.
-If the code in the snippet seems to generally follow the provided rules (be lenient), your response should simply be: 
-"LGTM".
+Below, you are given a summary of the overall purpose of a python file, a snippet from that python file, and a list of programming conventions defined by the user.
+If the code in the snippet seems to generally follow the provided conventions (be lenient), your response should simply be: 
+"LGTM". Ignore lines or code that is cutoff at the start or end, as this snippet is chosen randomly. 
 
-Otherwise, if a part of the code directly violates one of the given rules, generate ONLY short concise bullet-point comments each structured as:
-"
-- <description of rule violation>:
-<specific line(s) that violate rule> 
-# suggestion:
+Otherwise, if a part of the code directly violates one of the given conventions, generate ONLY 1 - 2 short concise bullet-point comments each containing:
+<The not satisfied convention>
+<specific old line(s) of code> 
 <suggested new code>
-"
 
+Remember:
+Deliberately ignore all issues or errors if they do not fall under one of the given conventions. 
 ##### RULES:
 {constraints}
 #####
@@ -50,6 +52,33 @@ Otherwise, if a part of the code directly violates one of the given rules, gener
 {content}
 #####
 """
+
+ERRORS_PROMPT = """
+# Important Instructions: 
+Below, you are given a summary of the overall purpose of a python file and a incomplete code fragment from the middle that python file.
+Please verify that the code snippet contains no fatal logical errors with regards to the basics of the language.
+Deliberately ignore any possible issues with libraries, functions, or function calls that are not in core python or standard lib and assume they are correctly defined and used.
+
+Since the snippet is from the middle of the python file, ignore any tabbing, spacing, missing return statements/lines of code, or misspelled/incorrect method names.
+
+If the individual lines of code have no fatal issues with the basics of python that would cause the code to not execute, respond only with "LGTM".
+
+Once again, ignore any minor issues with spelling, naming, or code conventions.
+
+Otherwise, generate ONLY short concise bullet-point comments each containing:
+<The error>
+<specific old line(s) of code> 
+<suggested new code>
+
+
+##### PURPOSE:
+{purpose}
+#####
+##### SNIPPET:
+{content}
+#####
+"""
+
 
 @register_tool(tags=["list python files", "directory", "folder"])
 def ListPythonFiles(directory: str):
@@ -111,18 +140,47 @@ async def GenerateComments(path: str, purpose: str):
     sys_text = "You are an helpful AI agent who follows user instructions perfectly and precisely."
     with open(path) as file:
         contents = file.read()
-    if not os.path.exists(".github/workflows/constraints.txt"):
+    if not os.path.exists("/Users/tanishq/Downloads/MetaGPT/metagpt/tools/libs/.github/workflows/constraints.txt"):
         constraints = CONSTRAINTS
     else:
-        with open(path) as file:
+        with open("/Users/tanishq/Downloads/MetaGPT/metagpt/tools/libs/.github/workflows/constraints.txt") as file:
             constraints = file.read()
-    prompt_template = COMMENT_PROMPT.format(purpose=purpose, constraints=constraints, content="{}")
-    chunks = generate_prompt_chunk(text=contents, prompt_template=prompt_template, model_name="gpt-3.5-turbo-0613", system_text=sys_text)
+    lines = contents.splitlines(keepends=True)
+    chunks = []
+    curr_chunk = ""
+    for line in lines:
+        while len(line) > CHUNK_SIZE:
+            chunks.append(line[:CHUNK_SIZE])
+            line = line[CHUNK_SIZE:]
+        if len(curr_chunk) + len(line) > CHUNK_SIZE:
+            chunks.append(curr_chunk)
+            curr_chunk = ""
+        curr_chunk += line
+    if len(curr_chunk) > 0:
+        chunks.append(curr_chunk)
     comments = ""
-    for prompt in chunks:
+    for item in chunks:
+        prompt = ERRORS_PROMPT.format(purpose=purpose, content=item)
         item = await llm.aask(msg=prompt, system_msgs=[sys_text])
-        comments = f"{comments} {item} \n"
-    return comments
-
-    
+        if item == "LGTM":
+            pass
+        else:
+            comments = f"{comments} {item} \n"
+    if comments != "":
+        return comments
+    else:
+        ## run with comment code style/extra constraints prompt
+        for item in chunks:
+            prompt = COMMENT_PROMPT.format(purpose = purpose, constraints = constraints, content = item)
+            item = await llm.aask(msg = prompt, system_msgs = [sys_text])
+            if item == "LGTM":
+                pass
+            else:
+                comments = f"{comments} {item} \n"
+    if comments == "":
+        return "LGTM"
+    else:
+        return comments
+import asyncio
+asyncio.run(GenerateComments("/Users/tanishq/Downloads/MetaGPT/metagpt/tools/libs/filesys_interact.py", "Agent tools to generate comments on code and infer the purpose of code snippets.\n"))    
 
