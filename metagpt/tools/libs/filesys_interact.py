@@ -4,13 +4,12 @@ from metagpt.config2 import config
 from metagpt.llm import LLM
 from metagpt.utils.text import generate_prompt_chunk
 
-CHUNK_SIZE = 1900
+CHUNK_SIZE = 2500
 
 CONSTRAINTS = """
 1. Choose descriptive and meaningful names for variables, functions, and classes unless they are in loops.
 2. Use variable typing and type hints where needed.
 3. Document your code with docstrings and comments if its functionality is not already obvious.
-4. Avoid excessively using global variables in your code.
 """
 
 INFER_PROMPT = """
@@ -52,24 +51,28 @@ Deliberately ignore all issues or errors if they do not fall under one of the gi
 {content}
 #####
 """
-
 ERRORS_PROMPT = """
 # Important Instructions: 
 Below, you are given a summary of the overall purpose of a python file and a incomplete code fragment from the middle that python file.
 Please verify that the code snippet contains no fatal logical errors with regards to the basics of the language.
 Deliberately ignore any possible issues with libraries, functions, or function calls that are not in core python or standard lib and assume they are correctly defined and used.
+Also deliberately ignore any functions or function signatures you do not recognize.
 
-Since the snippet is from the middle of the python file, ignore any tabbing, spacing, missing return statements/lines of code, or misspelled/incorrect method names.
+Since the snippet is from the middle of the python file, ignore any formatting, missing return statements/lines of code, or misspelled/incorrect method names.
 
-If the individual lines of code have no fatal issues with the basics of python that would cause the code to not execute, respond only with "LGTM".
+Examples: 
+- if you have a line with "if" and there is no "else", ignore it as it may be contained in the later lines. 
+- if you have a for loop or while loop and you cannot see the entirety of the loop to see if it will execute, ignore it, as it may be just outside of the current fragment. 
+- if you are unsure what type of method you are within, assume you are in the method that makes the code work correctly.
 
-Once again, ignore any minor issues with spelling, naming, or code conventions.
+If the individual lines of code have no fatal issues, or you have been instructed to ignored the existing fatal issues, respond only with "LGTM".
 
 Otherwise, generate ONLY short concise bullet-point comments each containing:
-<The error>
+<Describe the error>
 <specific old line(s) of code> 
 <suggested new code>
 
+Once again, ignore any issues with spelling, naming, or code conventions.
 
 ##### PURPOSE:
 {purpose}
@@ -137,7 +140,7 @@ async def GenerateComments(path: str, purpose: str):
         return "Given path does not exist!"
     if os.path.isdir(path):
         return "Given path refers to a directory, not a file!"
-    sys_text = "You are an helpful AI agent who follows user instructions perfectly and precisely."
+    sys_text = "You are an helpful AI agent who follows user instructions precisely. You are a novice to python and therefore tend to assume that code contains no issues. You have no knowledge of programming convention or best practices."
     with open(path) as file:
         contents = file.read()
     if not os.path.exists("/Users/tanishq/Downloads/MetaGPT/metagpt/tools/libs/.github/workflows/constraints.txt"):
@@ -169,10 +172,11 @@ async def GenerateComments(path: str, purpose: str):
     if comments != "":
         return comments
     else:
+        sys_text_v2 = "You are an helpful AI agent who follows user instructions precisely."
         ## run with comment code style/extra constraints prompt
         for item in chunks:
             prompt = COMMENT_PROMPT.format(purpose = purpose, constraints = constraints, content = item)
-            item = await llm.aask(msg = prompt, system_msgs = [sys_text])
+            item = await llm.aask(msg = prompt, system_msgs = [sys_text_v2])
             if item == "LGTM":
                 pass
             else:
@@ -181,6 +185,3 @@ async def GenerateComments(path: str, purpose: str):
         return "LGTM"
     else:
         return comments
-import asyncio
-asyncio.run(GenerateComments("/Users/tanishq/Downloads/MetaGPT/metagpt/tools/libs/filesys_interact.py", "Agent tools to generate comments on code and infer the purpose of code snippets.\n"))    
-
